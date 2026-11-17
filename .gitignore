@@ -1,0 +1,50 @@
+# Java / Maven
+target/
+*.class
+*.jar
+!.mvn/wrapper/maven-wrapper.jar
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Node / Angular
+node_modules/
+frontend/dist/
+npm-debug.log
+
+# Terraform
+infra/terraform/.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfvars
+
+# Env / secrets
+.env
+*.local
+
+# Additional generated files
+**/dist/
+**/build/
+coverage/
+*.log
+*.tmp
+
+# Terraform
+**/.terraform/
+*.tfplan
+
+# Local credentials
+*.pem
+*.p12
+*.key
+
+# Local Docker/Maven cache
+.docker-maven-cache/
+
+/-Dartifact=*
+/-Dtransitive=false
+/-f
+/-t
+/mvn

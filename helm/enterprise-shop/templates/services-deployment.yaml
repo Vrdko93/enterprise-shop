@@ -1,0 +1,104 @@
+{{- $defaults := .Values.serviceDefaults }}
+{{- $global := .Values.global }}
+{{- range $name, $service := .Values.services }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $name }}
+spec:
+  replicas: {{ default $defaults.replicas $service.replicas }}
+  selector:
+    matchLabels:
+      app: {{ $name }}
+  template:
+    metadata:
+      labels:
+        app: {{ $name }}
+    spec:
+      containers:
+        - name: {{ $name }}
+          image: "{{ $service.image }}:{{ default $global.imageTag $service.imageTag }}"
+          imagePullPolicy: {{ $defaults.imagePullPolicy }}
+          ports:
+            - containerPort: {{ $service.port }}
+          env:
+            - name: SPRING_APPLICATION_NAME
+              value: {{ $name | quote }}
+            - name: MANAGEMENT_TRACING_ENABLED
+              value: {{ $defaults.tracing.enabled | quote }}
+            - name: MANAGEMENT_TRACING_SAMPLING_PROBABILITY
+              value: {{ $defaults.tracing.samplingProbability | quote }}
+            - name: MANAGEMENT_OTLP_TRACING_ENDPOINT
+              value: {{ $defaults.tracing.otlpEndpoint | quote }}
+            - name: LOGGING_PATTERN_CORRELATION
+              value: "[traceId=%X{traceId:-},spanId=%X{spanId:-}] "
+            {{- if $service.database }}
+            - name: POSTGRES_HOST
+              value: "postgres"
+            - name: POSTGRES_PORT
+              value: "5432"
+            - name: POSTGRES_DB
+              value: {{ $service.database | quote }}
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.secrets.postgres.existingSecret }}
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.secrets.postgres.existingSecret }}
+                  key: POSTGRES_PASSWORD
+            {{- end }}
+            {{- if $service.jwt }}
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.secrets.jwt.existingSecret }}
+                  key: JWT_SECRET
+            {{- end }}
+            {{- if $service.redis }}
+            - name: REDIS_HOST
+              value: "redis"
+            - name: REDIS_PORT
+              value: "6379"
+            {{- end }}
+            {{- if $service.database }}
+            - name: KAFKA_BOOTSTRAP
+              value: "kafka:29092"
+            {{- end }}
+            {{- if $service.gateway }}
+            - name: USER_SERVICE_URI
+              value: "http://user-service:8081"
+            - name: PRODUCT_SERVICE_URI
+              value: "http://product-service:8082"
+            - name: ORDER_SERVICE_URI
+              value: "http://order-service:8083"
+            - name: PAYMENT_SERVICE_URI
+              value: "http://payment-service:8084"
+            - name: NOTIFICATION_SERVICE_URI
+              value: "http://notification-service:8085"
+            {{- end }}
+            - name: JAVA_TOOL_OPTIONS
+              value: {{ $defaults.javaOptions | quote }}
+            - name: MANAGEMENT_ENDPOINT_HEALTH_PROBES_ENABLED
+              value: "true"
+          resources:
+{{ toYaml $defaults.resources | indent 12 }}
+          startupProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: {{ $service.port }}
+{{ toYaml $defaults.startupProbe | indent 12 }}
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: {{ $service.port }}
+{{ toYaml $defaults.readinessProbe | indent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: {{ $service.port }}
+{{ toYaml $defaults.livenessProbe | indent 12 }}
+{{- end }}

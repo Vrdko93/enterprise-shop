@@ -1,0 +1,8 @@
+global:
+  imageTag: "1.0.0"
+
+serviceDefaults:
+  replicas: 1
+
+frontend:
+  replicas: 1

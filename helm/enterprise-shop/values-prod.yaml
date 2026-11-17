@@ -1,0 +1,19 @@
+global:
+  imageTag: "1.0.1"
+
+services:
+  user-service:
+    replicas: 2
+  product-service:
+    replicas: 2
+  order-service:
+    replicas: 2
+  payment-service:
+    replicas: 1
+  notification-service:
+    replicas: 1
+  api-gateway:
+    replicas: 2
+
+frontend:
+  replicas: 2
