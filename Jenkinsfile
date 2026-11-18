@@ -26,6 +26,21 @@ pipeline {
                 bat 'docker info --format "{{.ServerVersion}}"'
             }
         }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    def gitSha = bat(
+                        script: '@git rev-parse --short=7 HEAD',
+                        returnStdout: true
+                    ).trim()
+
+                    echo "Building user-service image with tag: ${gitSha}"
+
+                    bat "docker build -f services/user-service/Dockerfile -t enterprise-shop/user-service:${gitSha} ."
+                }
+            }
+        }
     }
 
     post {
