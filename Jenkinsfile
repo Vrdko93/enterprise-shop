@@ -53,6 +53,45 @@ pipeline {
                 }
             }
         }
+
+        stage('Push Docker Images') {
+            steps {
+                script {
+                    def gitSha = bat(
+                        script: '@git rev-parse --short=7 HEAD',
+                        returnStdout: true
+                    ).trim()
+
+                    def services = [
+                        'user-service',
+                        'product-service',
+                        'order-service',
+                        'payment-service',
+                        'notification-service',
+                        'api-gateway'
+                    ]
+
+                    withCredentials([
+                        usernamePassword(
+                            credentialsId: 'dockerhub-credentials',
+                            usernameVariable: 'DOCKERHUB_USER',
+                            passwordVariable: 'DOCKERHUB_TOKEN'
+                        )
+                    ]) {
+                        bat 'echo %DOCKERHUB_TOKEN% | docker login --username "%DOCKERHUB_USER%" --password-stdin'
+
+                        for (service in services) {
+                            def localImage = "enterprise-shop/${service}:${gitSha}"
+                            def remoteImage = "vrdko93/enterprise-shop-${service}:${gitSha}"
+
+                            bat "docker tag ${localImage} ${remoteImage}"
+                            bat "docker push ${remoteImage}"
+                        }
+                    }
+                }
+            }
+        }
+
     }
 
     post {
