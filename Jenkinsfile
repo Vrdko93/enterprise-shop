@@ -19,6 +19,13 @@ pipeline {
                 bat 'mvn -B clean verify'
             }
         }
+
+        stage('Verify Docker') {
+            steps {
+                bat 'docker --version'
+                bat 'docker info --format "{{.ServerVersion}}"'
+            }
+        }
     }
 
     post {
