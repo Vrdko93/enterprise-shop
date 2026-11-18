@@ -27,7 +27,8 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
+
+        stage('Build Docker Images') {
             steps {
                 script {
                     def gitSha = bat(
@@ -35,9 +36,20 @@ pipeline {
                         returnStdout: true
                     ).trim()
 
-                    echo "Building user-service image with tag: ${gitSha}"
+                    def services = [
+                        'user-service',
+                        'product-service',
+                        'order-service',
+                        'payment-service',
+                        'notification-service',
+                        'api-gateway'
+                    ]
 
-                    bat "docker build -f services/user-service/Dockerfile -t enterprise-shop/user-service:${gitSha} ."
+                    for (service in services) {
+                        echo "Building ${service}:${gitSha}"
+
+                        bat "docker build -f services/${service}/Dockerfile -t enterprise-shop/${service}:${gitSha} ."
+                    }
                 }
             }
         }
