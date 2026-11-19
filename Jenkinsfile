@@ -78,7 +78,7 @@ pipeline {
                             passwordVariable: 'DOCKERHUB_TOKEN'
                         )
                     ]) {
-                        bat '@echo off && <nul set /p "=%DOCKERHUB_TOKEN%" | docker login --username "%DOCKERHUB_USER%" --password-stdin'R%" --password-stdin'
+                        bat '@echo off && <nul set /p "=%DOCKERHUB_TOKEN%" | docker login --username "%DOCKERHUB_USER%" --password-stdin'
 
                         for (service in services) {
                             def localImage = "enterprise-shop/${service}:${gitSha}"
