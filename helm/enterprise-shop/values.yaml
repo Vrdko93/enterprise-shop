@@ -36,48 +36,48 @@ serviceDefaults:
 
 services:
   user-service:
-    image: enterprise-shop/user-service
+    image: vrdko93/enterprise-shop-user-service
     port: 8081
     database: users
     redis: true
     jwt: true
 
   product-service:
-    image: enterprise-shop/product-service
+    image: vrdko93/enterprise-shop-product-service
     port: 8082
     database: products
     redis: true
     jwt: false
 
   order-service:
-    image: enterprise-shop/order-service
+    image: vrdko93/enterprise-shop-order-service
     port: 8083
     database: orders
     jwt: false
     redis: true
 
   payment-service:
-    image: enterprise-shop/payment-service
+    image: vrdko93/enterprise-shop-payment-service
     port: 8084
     database: payments
     jwt: false
     redis: false
 
   notification-service:
-    image: enterprise-shop/notification-service
+    image: vrdko93/enterprise-shop-notification-service
     port: 8085
     database: notifications
     jwt: false
     redis: false
 
   api-gateway:
-    image: enterprise-shop/api-gateway
+    image: vrdko93/enterprise-shop-api-gateway
     port: 8080
     gateway: true
     redis: true
 
 frontend:
-  image: enterprise-shop/frontend
+  image: vrdko93/enterprise-shop-frontend
   replicas: 1
   port: 80
   imagePullPolicy: IfNotPresent

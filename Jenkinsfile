@@ -50,6 +50,10 @@ pipeline {
 
                         bat "docker build -f services/${service}/Dockerfile -t enterprise-shop/${service}:${gitSha} ."
                     }
+
+                    echo "Building frontend:${gitSha}"
+
+                    bat "docker build -f frontend/Dockerfile -t enterprise-shop/frontend:${gitSha} frontend"
                 }
             }
         }
@@ -87,6 +91,12 @@ pipeline {
                             bat "docker tag ${localImage} ${remoteImage}"
                             bat "docker push ${remoteImage}"
                         }
+
+                        echo "Pushing frontend:${gitSha}"
+
+                        bat "docker tag enterprise-shop/frontend:${gitSha} %DOCKERHUB_USER%/enterprise-shop-frontend:${gitSha}"
+
+                        bat "docker push %DOCKERHUB_USER%/enterprise-shop-frontend:${gitSha}"
                     }
                 }
             }
